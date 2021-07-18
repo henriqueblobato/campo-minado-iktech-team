@@ -1,0 +1,42 @@
+
+p {
+    text-align: center;
+    font-family: Helvetica, sans-serif;
+   
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0px;
+}
+
+button {
+    color: white;
+    text-align: center;
+    font-size: 16px;
+
+    background-color: white; 
+    color: black;
+
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0%);
+}
+
+.input-placeholder {
+    color: white;
+    text-align: center;
+
+    background-color: white;
+}
+
+
+#main-container {
+    display: inline-grid;
+    grid-template-columns: auto;
+    padding: 10px;
+
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0%);
+
+    visibility: hidden;
+}

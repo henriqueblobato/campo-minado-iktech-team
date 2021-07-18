@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <title> python mine sweeper</title>
+</head>
+
+<body>
+    <br><br><br>
+    <button id="newGameBtn">New Game</button>
+    <br><br><br>
+
+    <span class="input-placeholder">
+        <input type="number" placeholder="rows">
+    </span>
+    <span class="input-placeholder">
+        <input type="number" placeholder="columns">
+    </span >
+    <p>Mines: <span id="count-of-mines"></span></p>
+    <p>Timer:
+        <span id="minutes"></span>:<span id="seconds"></span>
+    </p>
+
+    <div id="main-container"></div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
