@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, abort
 from utils.minesManager import MinesManager
 import json
 
-from utils.minesMaker import createEmptyTable, setRandomMines, fillFields
+from utils.mines_functions import create_matrix, create_random_mines, create_number_fields
 
 app = Flask(__name__)
 
@@ -14,7 +14,7 @@ def index():
     return app.send_static_file('index.html')
 
 
-@app.route('/newGameData')
+@app.route('/newGameData', methods=['POST'])
 def new_game_data():
     request_data = request.get_json()
     try:
@@ -25,9 +25,9 @@ def new_game_data():
         print(f'{type(e)}, {str(format(e))}')
         width, height, mines = 5, 5, 5
 
-    response = createEmptyTable(width, height)
-    response = setRandomMines(response, mines)
-    response = fillFields(response)
+    response = create_matrix(width, height)
+    response = create_random_mines(response, mines)
+    response = create_number_fields(response)
 
     return json.dumps(response)
 
