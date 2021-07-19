@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, abort
-
 from utils.minesManager import MinesManager
+import json
+
+from utils.minesMaker import createEmptyTable, setRandomMines, fillFields
 
 app = Flask(__name__)
 
@@ -14,23 +16,20 @@ def index():
 
 @app.route('/newGameData')
 def new_game_data():
-    # if not request.json:
-    #     abort(400)
     request_data = request.get_json()
-    width = 5 #request_data['width']
-    height = 5 #request_data['height']
-    count_of_mines = 5 #request_data['countOfMines']
-    generated_json = manager.getMines(width, height, count_of_mines)
-    print(generated_json)
-    return jsonify(generated_json)
+    try:
+        width = min(20, int(request_data['width']))
+        height = min(20, int(request_data['height']))
+        mines = min(width*height, int(request_data['countOfMines']))
+    except Exception as e:
+        print(f'{type(e)}, {str(format(e))}')
+        width, height, mines = 5, 5, 5
 
+    response = createEmptyTable(width, height)
+    response = setRandomMines(response, mines)
+    response = fillFields(response)
 
-# @app.route('/postMoveData', methods=['POST'])
-# def post_move_data():
-#     if not request.json:
-#         abort(400)
-#     ret = checker.checkMines(request.json)
-#     return jsonify(ret)
+    return json.dumps(response)
 
 
 if __name__ == '__main__':

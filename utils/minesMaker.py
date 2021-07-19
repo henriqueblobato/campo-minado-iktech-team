@@ -2,7 +2,7 @@ from random import randint
 from copy import deepcopy
 
 
-def __createEmptyTable(width, height):
+def createEmptyTable(width, height):
     ret = []
     line = []
     for i in range(0, width):
@@ -12,7 +12,7 @@ def __createEmptyTable(width, height):
     return ret
 
 
-def __setRandomMines(table, countOfMines):
+def setRandomMines(table, countOfMines):
     i = 0
     while i < countOfMines:
         randY = randint(0, len(table) - 1)
@@ -25,7 +25,7 @@ def __setRandomMines(table, countOfMines):
     return table
 
 
-def __fillFields(table):
+def fillFields(table):
     for y in range(0, len(table)):
         for x in range(0, len(table[0])):
             if not table[y][x] == 'mine':
@@ -41,7 +41,7 @@ def __fillFields(table):
 
 
 def generateMines(width, height, countOfMines):
-    ret = __createEmptyTable(width, height)
-    ret = __setRandomMines(ret, countOfMines)
-    ret = __fillFields(ret)
+    ret = createEmptyTable(width, height)
+    ret = setRandomMines(ret, countOfMines)
+    ret = fillFields(ret)
     return ret
