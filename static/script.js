@@ -5,13 +5,19 @@ let gameArray = [];
 let minutesLabel = $("#minutes");
 let secondsLabel = $("#seconds");
 let sec = 0;
+let timer;
 
 $(document).ready(() => {
     loadNewGame();
 
+    timer = runTimer();
+
     $('#newGameBtn').on('click', () => {
         $container.css('visibility', 'hidden');
         $container.html('');
+        jsonData.columns = $('#columns').val();
+        jsonData.rows = $('#rows').val();
+        console.log(jsonData)
         loadNewGame();
     });
 
@@ -46,7 +52,7 @@ $(document).ready(() => {
         const str = clickedElement.attr('id');
         const clickedXY = str.split('x');
 
-        
+
         const field = gameArray[clickedXY[0]][clickedXY[1]];
         if (!field.marked) {
             clickedElement.html('&#128681;');
@@ -81,9 +87,9 @@ const storeData = (data) => {
 }
 
 const createGameGrid = () => {
-    runTimer();
     $("#rows").val(jsonData.rows);
     $("#columns").val(jsonData.columns);
+    $('#mines').val(jsonData.countOfMines);
     $container.css('grid-template-columns', 'repeat(' + jsonData.columns + ', auto)');
     gameArray.forEach((row, i) => {
         row.forEach((field, j) => {
@@ -91,21 +97,25 @@ const createGameGrid = () => {
         });
     });
     $container.css('visibility', 'visible');
-    $('#count-of-mines').text(jsonData.countOfMines);
 }
 
 const pad = (val) => val > 9 ? val : "0" + val;
 
 const runTimer = () => {
-    setInterval(() => {
+    return setInterval(() => {
         secondsLabel.text(pad(++sec % 60));
         minutesLabel.text(pad(parseInt(sec / 60, 10)));
     }, 1000);
 }
 
 const showMassage = (message) => {
-    if (message == 'won') alert('Congratulations, You Won!');
-    else if (message == 'lost') alert('You Lost... Try it one more time!');
+    if (message == 'won') {
+        clearInterval(timer);
+        alert('Congratulations, You Won!');
+    } else if (message == 'lost') {
+        clearInterval(timer);
+        alert('You Lost... Try it one more time!');
+    }
 }
 
 const fieldContent = (type) => {

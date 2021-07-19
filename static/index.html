@@ -10,17 +10,17 @@
 <body>
     <main>
         <div class="col-left">
-            <h4>
-                Mines: 
-                <span id="count-of-mines"></span>
-            </h4>
             <div class="input-group">
                 <label for="rows">Rows:</label>
-                <input id="rows" name="rows" type="number">
+                <input id="rows" max="20" name="rows" type="number">
             </div>
             <div class="input-group">
                 <label for="columns">Columns:</label>
-                <input id="columns" name="columns" type="number">
+                <input id="columns" max="20" name="columns" type="number">
+            </div>
+            <div class="input-group">
+                <label for="mines">Mines:</label>
+                <input id="mines" name="mines" type="number">
             </div>
             
             <button id="newGameBtn">New Game</button>
