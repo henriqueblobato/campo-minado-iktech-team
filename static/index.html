@@ -4,27 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="/static/style.css">
-    <title> python mine sweeper</title>
+    <title>Python mine sweeper</title>
 </head>
 
 <body>
-    <br><br><br>
-    <button id="newGameBtn">New Game</button>
-    <br><br><br>
-
-    <span class="input-placeholder">
-        <input type="number" placeholder="rows">
-    </span>
-    <span class="input-placeholder">
-        <input type="number" placeholder="columns">
-    </span >
-    <p>Mines: <span id="count-of-mines"></span></p>
-    <p>Timer:
-        <span id="minutes"></span>:<span id="seconds"></span>
-    </p>
-
-    <div id="main-container"></div>
-
+    <main>
+        <div class="col-left">
+            <h4>
+                Mines: 
+                <span id="count-of-mines"></span>
+            </h4>
+            <div class="input-group">
+                <label for="rows">Rows:</label>
+                <input id="rows" name="rows" type="number">
+            </div>
+            <div class="input-group">
+                <label for="columns">Columns:</label>
+                <input id="columns" name="columns" type="number">
+            </div>
+            
+            <button id="newGameBtn">New Game</button>
+        </div>
+        <div class="col-right">
+            <h4>
+                Timer:
+                <span id="minutes"></span>:<span id="seconds"></span>
+            </h4>
+            <div id="main-container"></div>
+        </div>
+    </main>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="/static/script.js"></script>
 </body>
