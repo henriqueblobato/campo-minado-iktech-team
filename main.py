@@ -1,12 +1,9 @@
-from flask import Flask, request, jsonify, abort
-from utils.minesManager import MinesManager
+from flask import Flask, request
 import json
 
 from utils.mines_functions import create_matrix, create_random_mines, create_number_fields
 
 app = Flask(__name__)
-
-manager = MinesManager()
 
 
 @app.route('/')
