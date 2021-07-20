@@ -26,30 +26,6 @@ main {
     justify-self: flex-start;   
 } 
 
-.col-left > #newGameBtn {
-    border: none;
-    padding: .4rem .75rem;
-    border-radius: .5rem;
-    color: #ffffff;
-    background-color: #6c757d;
-    cursor: pointer;
-    align-self: flex-end;
-    line-height: 1.5;
-    border: 1px solid transparent;
-    transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-}
-
-.col-left > #newGameBtn:hover {
-    background-color: #5c636a;
-    border-color: #565e64;
-}
-
-.col-left > #newGameBtn:focus {
-    background-color: #5c636a;
-    border-color: #565e64;
-    box-shadow: 0 0 0 0.25rem rgb(130 138 145 / 50%);
-}
-
 .col-left > .input-group {
     display: flex;
     flex-direction: column;
@@ -80,7 +56,6 @@ main {
 }
 
 .col-right {
-    /*flex: 1;*/
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -88,6 +63,7 @@ main {
     border-radius: .4rem;
     background-color: #fff;
     color: #212529;
+    height: min-content;
 }
 
 #main-container {
@@ -116,7 +92,7 @@ main {
     background-color: #7d868f;
 }
 
-.field.type-empty {
+.field.type-0 {
     border-color: #7d868f;
 }
 
@@ -164,4 +140,76 @@ main {
     main {
         flex-direction: column;
     }
+}
+
+
+button {
+    border: none;
+    padding: .4rem .75rem;
+    border-radius: .5rem;
+    color: #ffffff;
+    background-color: #818AC5;
+    cursor: pointer;
+    align-self: flex-end;
+    line-height: 1.5;
+    border: 1px solid transparent;
+    transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    float: right;
+    margin: 10px;
+}
+
+button:hover {
+    background-color: #6b74a6;
+}
+
+button:focus {
+    background-color: #636b99;
+    border-color: #818AC5;
+    box-shadow: 0 0 0 0.25rem rgb(130 138 145 / 50%);
+}
+
+button.btn-cancel {
+    background-color: #6c757d;
+}
+
+button.btn-cancel:hover {
+    background-color: #5c636a;
+}
+
+button.btn-cancel:focus {
+    background-color: #5c636a;
+    border-color: #565e64;
+    box-shadow: 0 0 0 0.25rem rgb(130 138 145 / 50%);
+}
+
+
+.modal-container:before {
+    content: "";
+    background-color: rgba(0,0,0,0.6);
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.modal {
+  position: fixed;
+  top: 50px;
+  left: 0px;
+  right: 0px;
+  margin: 0 auto;
+  display: block;
+  background: white;
+  color: #212529;
+  padding: 40px;
+  width: 600px;
+  max-width: 100%;
+  z-index: 1;
+  border-radius: .4rem;
+}
+
+#modal {
+    display: none;
 }

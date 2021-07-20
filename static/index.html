@@ -10,20 +10,18 @@
 <body>
     <main>
         <div class="col-left">
-            <h4>
-                Mines: 
-                <span id="count-of-mines"></span>
-            </h4>
             <div class="input-group">
                 <label for="rows">Rows:</label>
-                <input id="rows" name="rows" type="number">
+                <input id="rows" max="20" name="rows" type="number">
             </div>
             <div class="input-group">
                 <label for="columns">Columns:</label>
-                <input id="columns" name="columns" type="number">
+                <input id="columns" max="20" name="columns" type="number">
             </div>
-            
-            <button id="newGameBtn">New Game</button>
+            <div class="input-group">
+                <label for="mines">Mines:</label>
+                <input id="mines" name="mines" type="number">
+            </div>
         </div>
         <div class="col-right">
             <h4>
@@ -33,8 +31,16 @@
             <div id="main-container"></div>
         </div>
     </main>
+    <div id="modal" class="modal-container" closed>
+        <div class="modal">
+            <h2></h2>
+            <p></p>
+            <button id="btnNewGame">New Game</button>
+            <button class="btn-cancel" id="btnCancel">CANCEL</button>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="/static/script.js"></script>
+    <script type="module" src="/static/script.js"></script>
 </body>
 
 </html>

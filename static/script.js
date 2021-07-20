@@ -1,139 +1,143 @@
+import {setClicked, setExplosion, verifyWin, showMassage, resetTimer, setFlag} from './utils/utils.js';
+import variables from './utils/variables.js';
 
-let $container = $('#main-container');
-let jsonData;
-let gameArray = [];
-let minutesLabel = $("#minutes");
-let secondsLabel = $("#seconds");
-let sec = 0;
+
+let {
+    $container, 
+    $rows, 
+    $columns, 
+    $mines,
+    matrixData, 
+} = variables;
+
+//let $container = $('#main-container');
+//let matrixData;
+//let timer;
+
+const directions = [
+    {'x': 0, 'y':-1},
+    {'x': 1, 'y':-1},
+    {'x': 1, 'y': 0},
+    {'x': 1, 'y': 1},
+    {'x': 0, 'y': 1},
+    {'x':-1, 'y': 1},
+    {'x':-1, 'y': 0},
+    {'x':-1, 'y':-1}
+]
 
 $(document).ready(() => {
     loadNewGame();
 
-    $('#newGameBtn').on('click', () => {
-        $container.css('visibility', 'hidden');
-        $container.html('');
-        loadNewGame();
+    $columns.change(requestNewGame);
+    $rows.change(requestNewGame);
+    $mines.change(requestNewGame);
+
+    $('#btnNewGame').on('click', () => {
+        $("#modal").fadeOut();
+        requestNewGame();
+    });
+
+    $('#btnCancel').on('click', () => { 
+        $("#modal").fadeOut();
     });
 
     $container.on('click', '.unclicked', (event) => {
-        const str = $(event.target).attr('id');
-        const clickedXY = str.split('x');
-        if (gameArray[clickedXY[0]][clickedXY[1]].marked) return;
+        const element = $(event.target);
+        const type = element.attr('data-value');
 
-        jsonData.clickedY = parseInt(clickedXY[0]);
-        jsonData.clickedX = parseInt(clickedXY[1]);
-        jsonData.data = gameArray;
-
-        $.ajax({
-            type: 'POST',
-            url: '/postMoveData',
-            contentType: 'application/json',
-            data: JSON.stringify(jsonData),
-            success: (data) => {
-                storeData(data);
-                updateGameGrid();
-                showMassage(data.message);
-            },
-            error: () => {
-                alert('error sending data');
-            }
-        });
-    });
-
-    $container.on('contextmenu','.unclicked', (event) => {
-        event.preventDefault();
-        const clickedElement = $(event.target);
-        const str = clickedElement.attr('id');
-        const clickedXY = str.split('x');
-
-        
-        const field = gameArray[clickedXY[0]][clickedXY[1]];
-        if (!field.marked) {
-            clickedElement.html('&#128681;');
-            jsonData.countOfMines--;
-        } else {
-            clickedElement.text('');
-            jsonData.countOfMines++;
+        if(type === '0') {
+            setOpenedByEmpty(element);
+        } else if (type == 'mine') {
+            setExplosion(element);
+        } else if (!element.hasClass('type-flag')) {
+            setClicked(element, type);
+            verifyWin();
         }
-        field.marked = !field.marked;
-        updateGameGrid();
+
     });
+
+    $container.on('contextmenu','.unclicked', setFlag);
 });
+
+
+
+const requestNewGame = () => {
+    $container.css('visibility', 'hidden');
+    $container.empty();
+    const columns = $columns.val();
+    const rows = $rows.val();
+    const mines = $mines.val();
+    const data = {columns, rows, mines}
+
+    $.ajax({
+        type: 'POST',
+        url: '/newGameData',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: (data) => {
+            storeData(data);
+            createGameGrid();
+        },
+        error: () => {
+            showMassage('error');
+        }
+    });
+}
 
 const loadNewGame = () => {
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: '/newGameData',
         success: (data) => {
             storeData(data);
             createGameGrid();
         },
         error: () => {
-            alert('error loading data');
+            showMassage('error');
         }
     });
 }
 
 const storeData = (data) => {
-    console.log(data)
-    jsonData = data;
-    gameArray = data.data;
+    matrixData = JSON.parse(data);
 }
 
 const createGameGrid = () => {
-    runTimer();
-    $("#rows").val(jsonData.rows);
-    $("#columns").val(jsonData.columns);
-    $container.css('grid-template-columns', 'repeat(' + jsonData.columns + ', auto)');
-    gameArray.forEach((row, i) => {
-        row.forEach((field, j) => {
-            $container.append(`<div id="${i}x${j}" class="field unclicked" alt="field"></div>`);
+    resetTimer();
+    $container.empty();
+    $rows.val(matrixData.length);
+    $columns.val(matrixData[0].length);
+    $mines.val(matrixData.flat().filter(item => item == 'mine').length);
+    $container.css('grid-template-columns', 'repeat(' + matrixData[0].length + ', auto)');
+    matrixData.forEach((row, y) => {
+        row.forEach((field, x) => {
+            $container.append(`<div id="${x}x${y}" data-value=${field} class="field unclicked" alt="field"></div>`);
         });
     });
     $container.css('visibility', 'visible');
-    $('#count-of-mines').text(jsonData.countOfMines);
 }
 
-const pad = (val) => val > 9 ? val : "0" + val;
+const setOpenedByEmpty = (element) => {
+    const clickedXY = element.attr('id').split('x');
+    const x = parseInt(clickedXY[0])
+    const y = parseInt(clickedXY[1])
+    const type = element.attr('data-value');
+    const columns = matrixData[0].length;
+    const rows = matrixData.length
 
-const runTimer = () => {
-    setInterval(() => {
-        secondsLabel.text(pad(++sec % 60));
-        minutesLabel.text(pad(parseInt(sec / 60, 10)));
-    }, 1000);
-}
+    if (element.hasClass('unclicked') && !element.hasClass('type-flag')) {
+        setClicked(element, type);
+        if(type !== '0') return;
+        
+        directions.map((direction) => {
+            let newX = x + direction['x'];
+            let newY = y + direction['y'];
 
-const showMassage = (message) => {
-    if (message == 'won') alert('Congratulations, You Won!');
-    else if (message == 'lost') alert('You Lost... Try it one more time!');
-}
-
-const fieldContent = (type) => {
-    if(Number.isInteger(type)) return type
-   
-    const types = {
-       'mine': '&#x1F4A3;',
-       'explosion': '&#x1F4A3;',
-       'flag': '&#128681;',
-       'empty': '',
-   } 
-   return types[type];
-}
-
-const updateGameGrid = () => {
-    for (let row = 0; row < jsonData.rows; row++) {
-        for (let column = 0; column < jsonData.columns; column++) {
-            const currentObject = gameArray[row][column];
-            if (!currentObject.clickable) {
-                const $field = $container.find('#' + row + 'x' + column);
-                if ($field.hasClass('unclicked')) {
-                    $field.addClass(`type-${currentObject.type}`);
-                    if (currentObject.type != 'empty') $field.html(fieldContent(currentObject.type));
-
-                    $field.removeClass('unclicked');
-                }
+            if(((0 <= newX) && (newX < columns)) && ((0 <= newY) && (newY < rows))) {
+                const newElement = $(`#${x+direction['x']}x${y+direction['y']}`)
+                setOpenedByEmpty(newElement)
             }
-        }
+        });
     }
-    $('#count-of-mines').text(jsonData.countOfMines);
 }
+
