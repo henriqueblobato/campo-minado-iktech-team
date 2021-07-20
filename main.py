@@ -1,35 +1,32 @@
-from os import abort
-
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import json
-from minesManager import MinesManager
-from minesChecker import MinesChecker
+
+from utils.mines_functions import create_matrix, create_random_mines, create_number_fields
 
 app = Flask(__name__)
-
-manager = MinesManager()
-checker = MinesChecker()
-generatedJson = {}
 
 
 @app.route('/')
 def index():
-    a = None
     return app.send_static_file('index.html')
 
 
-@app.route('/newGameData')
+@app.route('/newGameData', methods=['POST'])
 def new_game_data():
-    generated_json = manager.getMines()
-    return jsonify(generated_json)
+    request_data = request.get_json()
+    try:
+        width = min(20, int(request_data['width']))
+        height = min(20, int(request_data['height']))
+        mines = min(width*height, int(request_data['countOfMines']))
+    except Exception as e:
+        print(f'{type(e)}, {str(format(e))}')
+        width, height, mines = 5, 5, 5
 
+    response = create_matrix(width, height)
+    response = create_random_mines(response, mines)
+    response = create_number_fields(response)
 
-@app.route('/postMoveData', methods=['POST'])
-def post_move_data():
-    if not request.json:
-        abort(400)
-    ret = checker.checkMines(request.json)
-    return jsonify(ret)
+    return json.dumps(response)
 
 
 if __name__ == '__main__':
