@@ -7,6 +7,45 @@ let secondsLabel = $("#seconds");
 let sec = 0;
 let timer;
 
+directions = [
+    {'x': 0, 'y':-1},
+    {'x': 1, 'y':-1},
+    {'x': 1, 'y': 0},
+    {'x': 1, 'y': 1},
+    {'x': 0, 'y': 1},
+    {'x':-1, 'y': 1},
+    {'x':-1, 'y': 0},
+    {'x':-1, 'y':-1}
+]
+
+const setOpenedByEmpty = (element) => {
+    const clickedXY = element.attr('id').split('x');
+    const x = parseInt(clickedXY[0])
+    const y = parseInt(clickedXY[1])
+    const type = element.attr('data-value');
+    //let field = matrixData[y][x];
+    let columns = matrixData[0].length;
+    let rows = matrixData.length
+
+    if (element.hasClass('unclicked')) {
+        element.addClass(`type-${type}`);
+        element.removeClass('unclicked');
+        element.html(fieldContent(type));
+        if(type == '0') {
+            directions.map((direction) => {
+                let newX = x + direction['x'];
+                let newY = y + direction['y'];
+
+                if(((0 <= newX) && (newX < columns)) && ((0 <= newY) && (newY < rows))) {
+                    const newElement = $(`#${x+direction['x']}x${y+direction['y']}`)
+                    setOpenedByEmpty(newElement)
+                }
+            });
+        }
+    }
+
+}
+
 $(document).ready(() => {
     loadNewGame();
 
@@ -25,9 +64,15 @@ $(document).ready(() => {
     $container.on('click', '.unclicked', (event) => {
         const element = $(event.target);
         const type = element.attr('data-value');
-        element.addClass(`type-${type}`);
-        element.removeClass('unclicked');
-        element.html(fieldContent(type));
+
+        if(type === '0') {
+            setOpenedByEmpty(element);
+        } else {
+            element.addClass(`type-${type}`);
+            element.removeClass('unclicked');
+            element.html(fieldContent(type));
+        }
+
     });
 
     $container.on('contextmenu','.unclicked', (event) => {

@@ -80,7 +80,6 @@ main {
 }
 
 .col-right {
-    /*flex: 1;*/
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -88,6 +87,7 @@ main {
     border-radius: .4rem;
     background-color: #fff;
     color: #212529;
+    height: min-content;
 }
 
 #main-container {
@@ -116,7 +116,7 @@ main {
     background-color: #7d868f;
 }
 
-.field.type-empty {
+.field.type-0 {
     border-color: #7d868f;
 }
 
