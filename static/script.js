@@ -26,15 +26,21 @@ $(document).ready(() => {
         const clickedXY = str.split('x');
         if (gameArray[clickedXY[0]][clickedXY[1]].marked) return;
 
+        const toPost = {
+            clickedY: parseInt(clickedXY[0]),
+            clickedX: parseInt(clickedXY[1]),
+            data: gameArray
+        }
         jsonData.clickedY = parseInt(clickedXY[0]);
         jsonData.clickedX = parseInt(clickedXY[1]);
         jsonData.data = gameArray;
+        debugger
 
         $.ajax({
             type: 'POST',
             url: '/postMoveData',
             contentType: 'application/json',
-            data: JSON.stringify(jsonData),
+            data: JSON.stringify(toPost),
             success: (data) => {
                 storeData(data);
                 updateGameGrid();
