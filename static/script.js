@@ -82,15 +82,15 @@ const loadNewGame = () => {
 
 const storeData = (data) => {
     console.log(data)
-    jsonData = data;
-    gameArray = data.data;
+    jsonData =  JSON.parse(data);
+    gameArray = JSON.parse(data);
 }
 
 const createGameGrid = () => {
     $("#rows").val(jsonData.rows);
     $("#columns").val(jsonData.columns);
     $('#mines').val(jsonData.countOfMines);
-    $container.css('grid-template-columns', 'repeat(' + jsonData.columns + ', auto)');
+    $container.css('grid-template-columns', 'repeat(' + gameArray[0].length + ', auto)');
     gameArray.forEach((row, i) => {
         row.forEach((field, j) => {
             $container.append(`<div id="${i}x${j}" class="field unclicked" alt="field"></div>`);

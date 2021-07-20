@@ -28,7 +28,6 @@ def new_game_data():
     response = create_random_mines(response, mines)
     response = create_number_fields(response)
 
-    print(response)
     return json.dumps(response)
 
 
