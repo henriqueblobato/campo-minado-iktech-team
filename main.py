@@ -15,14 +15,14 @@ def index():
 def new_game_data():
     request_data = request.get_json()
     try:
-        width = min(20, int(request_data['width']))
-        height = min(20, int(request_data['height']))
-        mines = min(width*height, int(request_data['countOfMines']))
+        rows = min(20, int(request_data['rows']))
+        columns = min(20, int(request_data['columns']))
+        mines = min(rows*columns, int(request_data['mines']))
     except Exception as e:
         print(f'{type(e)}, {str(format(e))}')
-        width, height, mines = 5, 5, 5
+        rows, columns, mines = 5, 5, 5
 
-    response = create_matrix(width, height)
+    response = create_matrix(rows, columns)
     response = create_random_mines(response, mines)
     response = create_number_fields(response)
 

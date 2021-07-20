@@ -1,6 +1,6 @@
 
 let $container = $('#main-container');
-let jsonData;
+let matrixData;
 let gameArray = [];
 let minutesLabel = $("#minutes");
 let secondsLabel = $("#seconds");
@@ -15,35 +15,19 @@ $(document).ready(() => {
     $('#newGameBtn').on('click', () => {
         $container.css('visibility', 'hidden');
         $container.html('');
-        jsonData.columns = $('#columns').val();
-        jsonData.rows = $('#rows').val();
-        console.log(jsonData)
-        loadNewGame();
+        const columns = $('#columns').val();
+        const rows = $('#rows').val();
+        const mines = $('#mines').val();
+        const data = {columns, rows, mines}
+        requestNewGame(data);
     });
 
     $container.on('click', '.unclicked', (event) => {
-        const str = $(event.target).attr('id');
-        const clickedXY = str.split('x');
-        if (gameArray[clickedXY[0]][clickedXY[1]].marked) return;
-
-        jsonData.clickedY = parseInt(clickedXY[0]);
-        jsonData.clickedX = parseInt(clickedXY[1]);
-        jsonData.data = gameArray;
-
-        $.ajax({
-            type: 'POST',
-            url: '/postMoveData',
-            contentType: 'application/json',
-            data: JSON.stringify(jsonData),
-            success: (data) => {
-                storeData(data);
-                updateGameGrid();
-                showMassage(data.message);
-            },
-            error: () => {
-                alert('error sending data');
-            }
-        });
+        const element = $(event.target);
+        const type = element.attr('data-value');
+        element.addClass(`type-${type}`);
+        element.removeClass('unclicked');
+        element.html(fieldContent(type));
     });
 
     $container.on('contextmenu','.unclicked', (event) => {
@@ -56,44 +40,61 @@ $(document).ready(() => {
         const field = gameArray[clickedXY[0]][clickedXY[1]];
         if (!field.marked) {
             clickedElement.html('&#128681;');
-            jsonData.countOfMines--;
+            matrixData.countOfMines--;
         } else {
             clickedElement.text('');
-            jsonData.countOfMines++;
+            matrixData.countOfMines++;
         }
         field.marked = !field.marked;
         updateGameGrid();
     });
 });
 
+const requestNewGame = (data) => {
+    $.ajax({
+        type: 'POST',
+        url: '/newGameData',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: (data) => {
+            console.log(data)
+            storeData(data);
+            createGameGrid();
+        },
+        error: () => {
+            alert('error sending data');
+        }
+    });
+}
+
 const loadNewGame = () => {
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: '/newGameData',
         success: (data) => {
             storeData(data);
             createGameGrid();
         },
         error: () => {
-            alert('error loading data');
+            alert('error sending data');
         }
     });
 }
 
 const storeData = (data) => {
-    console.log(data)
-    jsonData = data;
-    gameArray = data.data;
+    matrixData = JSON.parse(data);
+    gameArray = JSON.parse(data);
 }
 
 const createGameGrid = () => {
-    $("#rows").val(jsonData.rows);
-    $("#columns").val(jsonData.columns);
-    $('#mines').val(jsonData.countOfMines);
-    $container.css('grid-template-columns', 'repeat(' + jsonData.columns + ', auto)');
-    gameArray.forEach((row, i) => {
-        row.forEach((field, j) => {
-            $container.append(`<div id="${i}x${j}" class="field unclicked" alt="field"></div>`);
+    $container.empty();
+    $("#rows").val(matrixData.length);
+    $("#columns").val(matrixData[0].length);
+    $('#mines').val(matrixData.flat().filter(item => item == 'mine').length);
+    $container.css('grid-template-columns', 'repeat(' + matrixData[0].length + ', auto)');
+    matrixData.forEach((row, y) => {
+        row.forEach((field, x) => {
+            $container.append(`<div id="${x}x${y}" data-value=${field} class="field unclicked" alt="field"></div>`);
         });
     });
     $container.css('visibility', 'visible');
@@ -119,20 +120,20 @@ const showMassage = (message) => {
 }
 
 const fieldContent = (type) => {
-    if(Number.isInteger(type)) return type
+    if(parseInt(type)) return type == '0' ? '' : type;
    
     const types = {
        'mine': '&#x1F4A3;',
        'explosion': '&#x1F4A3;',
        'flag': '&#128681;',
-       'empty': '',
-   } 
+   }
+   
    return types[type];
 }
 
 const updateGameGrid = () => {
-    for (let row = 0; row < jsonData.rows; row++) {
-        for (let column = 0; column < jsonData.columns; column++) {
+    for (let row = 0; row < matrixData.rows; row++) {
+        for (let column = 0; column < matrixData.columns; column++) {
             const currentObject = gameArray[row][column];
             if (!currentObject.clickable) {
                 const $field = $container.find('#' + row + 'x' + column);
@@ -145,5 +146,5 @@ const updateGameGrid = () => {
             }
         }
     }
-    $('#count-of-mines').text(jsonData.countOfMines);
+    //$('#count-of-mines').text(matrixData.countOfMines);
 }
