@@ -4,7 +4,10 @@ from copy import deepcopy
 
 def create_matrix(rows, columns):
     return [
-        [0 for j in range(columns)]
+        [
+            {'type': 'empty', 'clickable': True, 'marked': False}
+            for j in range(columns)
+        ]
         for i in range(rows)
     ]
 
