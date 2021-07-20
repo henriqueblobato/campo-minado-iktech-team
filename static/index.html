@@ -22,8 +22,6 @@
                 <label for="mines">Mines:</label>
                 <input id="mines" name="mines" type="number">
             </div>
-            
-            <button id="newGameBtn">New Game</button>
         </div>
         <div class="col-right">
             <h4>
@@ -33,6 +31,14 @@
             <div id="main-container"></div>
         </div>
     </main>
+    <div id="modal" class="modal-container" closed>
+        <div class="modal">
+            <h2></h2>
+            <p></p>
+            <button id="btnNewGame">New Game</button>
+            <button class="btn-cancel" id="btnCancel">CANCEL</button>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="/static/script.js"></script>
 </body>

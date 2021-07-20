@@ -7,7 +7,7 @@ let secondsLabel = $("#seconds");
 let sec = 0;
 let timer;
 
-directions = [
+const directions = [
     {'x': 0, 'y':-1},
     {'x': 1, 'y':-1},
     {'x': 1, 'y': 0},
@@ -18,48 +18,13 @@ directions = [
     {'x':-1, 'y':-1}
 ]
 
-const setOpenedByEmpty = (element) => {
-    const clickedXY = element.attr('id').split('x');
-    const x = parseInt(clickedXY[0])
-    const y = parseInt(clickedXY[1])
-    const type = element.attr('data-value');
-    //let field = matrixData[y][x];
-    let columns = matrixData[0].length;
-    let rows = matrixData.length
-
-    if (element.hasClass('unclicked')) {
-        element.addClass(`type-${type}`);
-        element.removeClass('unclicked');
-        element.html(fieldContent(type));
-        if(type == '0') {
-            directions.map((direction) => {
-                let newX = x + direction['x'];
-                let newY = y + direction['y'];
-
-                if(((0 <= newX) && (newX < columns)) && ((0 <= newY) && (newY < rows))) {
-                    const newElement = $(`#${x+direction['x']}x${y+direction['y']}`)
-                    setOpenedByEmpty(newElement)
-                }
-            });
-        }
-    }
-
-}
-
 $(document).ready(() => {
     loadNewGame();
 
-    timer = runTimer();
+    $('#columns').change(requestNewGame);
+    $('#rows').change(requestNewGame);
+    $('#mines').change(requestNewGame);
 
-    $('#newGameBtn').on('click', () => {
-        $container.css('visibility', 'hidden');
-        $container.html('');
-        const columns = $('#columns').val();
-        const rows = $('#rows').val();
-        const mines = $('#mines').val();
-        const data = {columns, rows, mines}
-        requestNewGame(data);
-    });
 
     $container.on('click', '.unclicked', (event) => {
         const element = $(event.target);
@@ -67,10 +32,11 @@ $(document).ready(() => {
 
         if(type === '0') {
             setOpenedByEmpty(element);
-        } else {
-            element.addClass(`type-${type}`);
-            element.removeClass('unclicked');
-            element.html(fieldContent(type));
+        } else if (type == 'mine') {
+            setExplosion(element);
+        } else if (!element.hasClass('type-flag')) {
+            setClicked(element, type);
+            verifyWin();
         }
 
     });
@@ -80,29 +46,40 @@ $(document).ready(() => {
         const clickedElement = $(event.target);
         const str = clickedElement.attr('id');
         const clickedXY = str.split('x');
-
-
+    
         const field = gameArray[clickedXY[0]][clickedXY[1]];
-        if (!field.marked) {
-            clickedElement.html('&#128681;');
+        if (!clickedElement.hasClass('type-flag')) {
+            clickedElement.html(fieldContent('flag'));
+            clickedElement.addClass(`type-flag`);
             matrixData.countOfMines--;
         } else {
             clickedElement.text('');
+            clickedElement.removeClass(`type-flag`);
             matrixData.countOfMines++;
         }
-        field.marked = !field.marked;
-        updateGameGrid();
     });
 });
 
-const requestNewGame = (data) => {
+const setClicked = (element, type) => {
+    element.addClass(`type-${type}`);
+    element.removeClass('unclicked');
+    element.html(fieldContent(type));
+}
+
+const requestNewGame = () => {
+    $container.css('visibility', 'hidden');
+    $container.empty();
+    const columns = $('#columns').val();
+    const rows = $('#rows').val();
+    const mines = $('#mines').val();
+    const data = {columns, rows, mines}
+
     $.ajax({
         type: 'POST',
         url: '/newGameData',
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: (data) => {
-            console.log(data)
             storeData(data);
             createGameGrid();
         },
@@ -132,6 +109,8 @@ const storeData = (data) => {
 }
 
 const createGameGrid = () => {
+    clearInterval(timer);
+    timer = runTimer();
     $container.empty();
     $("#rows").val(matrixData.length);
     $("#columns").val(matrixData[0].length);
@@ -155,13 +134,20 @@ const runTimer = () => {
 }
 
 const showMassage = (message) => {
-    if (message == 'won') {
-        clearInterval(timer);
-        alert('Congratulations, You Won!');
-    } else if (message == 'lost') {
-        clearInterval(timer);
-        alert('You Lost... Try it one more time!');
-    }
+    const text = message == 'won' ? 'Congratulations, You Won!' : 'You Lost... Try it one more time!';
+    $('.modal h2').text(message.toUpperCase());
+    $('.modal p').text(text);
+    $('#modal').show("closed");
+    clearInterval(timer);
+
+    $('#btnCancel').on('click', () => {
+        $("#modal").fadeOut();
+    });
+
+    $('#btnNewGame').on('click', () => {
+        $("#modal").fadeOut();
+        requestNewGame();
+    });
 }
 
 const fieldContent = (type) => {
@@ -176,20 +162,57 @@ const fieldContent = (type) => {
    return types[type];
 }
 
-const updateGameGrid = () => {
-    for (let row = 0; row < matrixData.rows; row++) {
-        for (let column = 0; column < matrixData.columns; column++) {
-            const currentObject = gameArray[row][column];
-            if (!currentObject.clickable) {
-                const $field = $container.find('#' + row + 'x' + column);
-                if ($field.hasClass('unclicked')) {
-                    $field.addClass(`type-${currentObject.type}`);
-                    if (currentObject.type != 'empty') $field.html(fieldContent(currentObject.type));
+const setOpenedByEmpty = (element) => {
+    const clickedXY = element.attr('id').split('x');
+    const x = parseInt(clickedXY[0])
+    const y = parseInt(clickedXY[1])
+    const type = element.attr('data-value');
+    let columns = matrixData[0].length;
+    let rows = matrixData.length
 
-                    $field.removeClass('unclicked');
+    if (element.hasClass('unclicked') && !element.hasClass('type-flag')) {
+        setClicked(element, type);
+
+        if(type == '0') {
+            directions.map((direction) => {
+                let newX = x + direction['x'];
+                let newY = y + direction['y'];
+
+                if(((0 <= newX) && (newX < columns)) && ((0 <= newY) && (newY < rows))) {
+                    const newElement = $(`#${x+direction['x']}x${y+direction['y']}`)
+                    setOpenedByEmpty(newElement)
                 }
-            }
+            });
         }
     }
-    //$('#count-of-mines').text(matrixData.countOfMines);
+
+}
+
+const setExplosion = (element) => {
+    setClicked(element, 'explosion');
+
+    showAllField($('.field:not(.type-explosion)'))
+
+    showMassage('lost')
+}
+
+const verifyWin = () => {
+    const notMines = $('.field:not([data-value="mine"])');
+
+    const win = !notMines.toArray().some(field => $(field).hasClass('unclicked'));
+
+    if(win) {
+        showAllField($('.field'));
+        showMassage('won');
+    }
+
+    return win;
+}
+
+const showAllField = (elements) => {
+    elements.each((i, field) => {
+        field = $(field);
+        const type = field.attr('data-value');
+        setClicked(field, type);
+    });
 }
