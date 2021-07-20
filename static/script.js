@@ -1,4 +1,4 @@
-import {setClicked, setExplosion, verifyWin, showMassage, resetTimer} from './utils/utils.js';
+import {setClicked, setExplosion, verifyWin, showMassage, resetTimer, setFlag} from './utils/utils.js';
 import variables from './utils/variables.js';
 
 
@@ -59,18 +59,7 @@ $(document).ready(() => {
     $container.on('contextmenu','.unclicked', setFlag);
 });
 
-const setFlag = (event) => {
-    event.preventDefault();
-    const clickedElement = $(event.target);
 
-    if (!clickedElement.hasClass('type-flag')) {
-        clickedElement.html(fieldContent('flag'));
-        clickedElement.addClass(`type-flag`);
-    } else {
-        clickedElement.text('');
-        clickedElement.removeClass(`type-flag`);
-    }
-}
 
 const requestNewGame = () => {
     $container.css('visibility', 'hidden');

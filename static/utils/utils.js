@@ -55,6 +55,19 @@ export const resetTimer = () => {
     timer = runTimer();
 }
 
+export const setFlag = (event) => {
+    event.preventDefault();
+    const clickedElement = $(event.target);
+
+    if (!clickedElement.hasClass('type-flag')) {
+        clickedElement.html(fieldContent('flag'));
+        clickedElement.addClass(`type-flag`);
+    } else {
+        clickedElement.text('');
+        clickedElement.removeClass(`type-flag`);
+    }
+}
+
 const showAllField = (elements) => {
     elements.each((i, field) => {
         field = $(field);
